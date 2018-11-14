@@ -1,5 +1,6 @@
-﻿using PokemonGoBot.API;
-using PokemonGoBot.API.GeneratedCode;
+﻿using POGOProtos.Inventory.Item;
+using POGOProtos.Networking.Responses;
+using PokemonGo.RocketAPI;
 using PokemonGoBot.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -21,25 +22,19 @@ namespace PokemonGoBot.Classes
         public async Task ExecuteCatchAllNearbyPokemons(Client client, int id)
         {
             var data = Main.clientData[id];
-            var mapObjects = await client.GetMapObjects();
+            var mapObjects = await client.Map.GetMapObjects();
 
             var pokemons = mapObjects.MapCells.SelectMany(i => i.CatchablePokemons);
 
-            var inventory2 = await client.GetInventory();
-            var pokemons2 = inventory2.InventoryDelta.InventoryItems
-                .Select(i => i.InventoryItemData?.Pokemon)
-                .Where(p => p != null && p?.PokemonId > 0)
-                .ToArray();
-
             foreach (var pokemon in pokemons)
             {
-                var update = await client.UpdatePlayerLocation(pokemon.Latitude, pokemon.Longitude);
-                var encounterPokemonResponse = await client.EncounterPokemon(pokemon.EncounterId, pokemon.SpawnpointId);
+                var update = await client.Player.UpdatePlayerLocation(pokemon.Latitude, pokemon.Longitude, 10);
+                var encounterPokemonResponse = await client.Encounter.EncounterPokemon(pokemon.EncounterId, pokemon.SpawnPointId);
                 var pokemonCP = encounterPokemonResponse?.WildPokemon?.PokemonData?.Cp;
                 CatchPokemonResponse caughtPokemonResponse;
                 do
                 {
-                    caughtPokemonResponse = await client.CatchPokemon(id, pokemon.EncounterId, pokemon.SpawnpointId, pokemon.Latitude, pokemon.Longitude, MiscEnums.Item.ITEM_POKE_BALL, pokemonCP);
+                    caughtPokemonResponse = await client.Encounter.CatchPokemon(pokemon.EncounterId, pokemon.SpawnPointId, ItemId.ItemPokeBall);
                     ; //note: reverted from settings because this should not be part of settings but part of logic
                 } while (caughtPokemonResponse.Status == CatchPokemonResponse.Types.CatchStatus.CatchMissed || caughtPokemonResponse.Status == CatchPokemonResponse.Types.CatchStatus.CatchEscape);
                 string pokemonName;
@@ -57,6 +52,11 @@ namespace PokemonGoBot.Classes
                         await _strong.TransferAllButStrongestUnwantedPokemon(client, id);
                         break;
                     case "all":
+                        var inventory2 = await client.Inventory.GetInventory();
+                        var pokemons2 = inventory2.InventoryDelta.InventoryItems
+                            .Select(i => i.InventoryItemData?.PokemonData)
+                            .Where(p => p != null && p?.PokemonId > 0)
+                            .ToArray();
                         await _transfer.TransferAllGivenPokemons(id, client, pokemons2);
                         break;
                     case "duplicate":

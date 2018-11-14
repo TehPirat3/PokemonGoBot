@@ -1,4 +1,4 @@
-﻿using PokemonGoBot.API.Enums;
+﻿using PokemonGo.RocketAPI.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,10 +32,12 @@ namespace PokemonGoBot
             Data data = new Data();
             Main.id++;
             CancellationTokenSource cts = new CancellationTokenSource();
-            //CancellationToken token = cts.Token;
-            data.AuthType = authType.Text.Equals("Ptc") ? AuthType.Ptc : AuthType.Google;
-            data.PtcUsername = user.Text;
-            data.PtcPassword = pass.Text;
+            data.AuthType = authType.Text == "Ptc" ? AuthType.Ptc : AuthType.Google;
+            //if (authType.Text == "Ptc")
+            data.PtcUsername = authType.Text == "Ptc" ? user.Text : string.Empty;
+            data.PtcPassword = authType.Text == "Ptc" ? pass.Text : string.Empty;
+            data.GoogleUsername = authType.Text == "Google" ? user.Text : string.Empty;
+            data.GooglePassword = authType.Text == "Google" ? pass.Text : string.Empty;
             data.DefaultLatitude = double.Parse(lat.Value.ToString());
             data.DefaultLongitude = double.Parse(lon.Value.ToString());
             data.LevelOutput = levelOutput.Text;
@@ -46,27 +48,15 @@ namespace PokemonGoBot
             data.EvolveAllGivenPokemons = evolve.Checked;
             data.CurrentLevel = -1;
             data.GoogleRefreshToken = string.Empty;
-            //data.token = new CancellationTokenSource();
             data.token = cts;
             Main.clientData.Add(Main.id, data);
-            /*data.user = user.Text;
-            data.password = pass.Text;
-            data.lat = lat;
-            data.lon = lon;
-            //data.levelOutput = levelOutput;
-            data.levelInterval = levelInterval;
-            data.recycleInterval = recycleInterval;
-            data.transferType = trasnferType;
-            data.cpTreshold = cpThreshold;
-            data.evolve = evolve;*/
-            //Main.addFlow();
             completed = true;
             Close();
         }
 
         private void authType_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            switch (authType.Text)
+            /*switch (authType.Text)
             {
                 case "Ptc":
                     pass.Enabled = true;
@@ -76,7 +66,7 @@ namespace PokemonGoBot
                     pass.Enabled = false;
                     user.Enabled = false;
                     break;
-            }
+            }*/
         }
 
         private void Setup_Load(object sender, EventArgs e)
@@ -109,8 +99,6 @@ namespace PokemonGoBot
                     break;
             }
         }
-
-        //public Control GroupBox()
 
     }
 }

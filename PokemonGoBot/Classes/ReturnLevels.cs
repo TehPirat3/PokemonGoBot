@@ -1,4 +1,4 @@
-﻿using PokemonGoBot.API;
+﻿using PokemonGo.RocketAPI;
 using PokemonGoBot.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace PokemonGoBot.Classes
                 return;
             }*/
             ClientSettings.token.Token.ThrowIfCancellationRequested();
-            var inventory = await client.GetInventory();
+            var inventory = await client.Inventory.GetInventory();
             var stats = inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.PlayerStats).ToArray();
             foreach (var v in stats)
                 if (v != null)
@@ -49,22 +49,16 @@ namespace PokemonGoBot.Classes
             await PrintLevel(client, id);
         }
 
-        public async Task ConsoleLevelTitle(string Username, Client client, int id)
+        public async Task ConsoleLevelTitle(Client client, int id)
         {
             var ClientSettings = Main.clientData[id];
-            /*if (ClientSettings.thread.ThreadState == System.Threading.ThreadState.Aborted)
-            {
-                _log.Log_(id, Color.Red, "Stopped!");
-                ((Button)flow.Controls[$"{id}"].Controls[$"remove{id}"]).Enabled = true;
-                ((Button)flow.Controls[$"{id}"].Controls[$"start{id}"]).Enabled = true;
-                ((Button)flow.Controls[$"{id}"].Controls[$"start{id}"]).Text = "Start";
-                return;
-            }*/
             ClientSettings.token.Token.ThrowIfCancellationRequested();
             var console = Main.panel.Controls.Find(id.ToString(), true)[0];
-            var inventory = await client.GetInventory();
-            var stats = inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.PlayerStats).ToArray();
-            var profile = await client.GetProfile();
+            var inventory = await client.Inventory.GetInventory();
+            //var stats = inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.PlayerStats).ToArray();
+            var player = await client.Player.GetPlayer();
+            var a = inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData);
+            var stats = a.Select(i => i.PlayerStats);
             foreach (var v in stats)
                 if (v != null)
                 {
@@ -73,14 +67,14 @@ namespace PokemonGoBot.Classes
                     //{
                         console.Invoke((MethodInvoker)delegate ()
                         {
-                            console.Text = string.Format(Username + " | Level {0:0} - ({1:0} / {2:0}) | Stardust {3:0}", v.Level, (v.Experience - v.PrevLevelXp - XpDiff), (v.NextLevelXp - v.PrevLevelXp - XpDiff), profile.Profile.Currency.ToArray()[1].Amount);
+                        console.Text = string.Format(player.PlayerData.Username + " | Level {0:0} - ({1:0} / {2:0}) | Stardust {3:0}", v.Level, (v.Experience - v.PrevLevelXp - XpDiff), (v.NextLevelXp - v.PrevLevelXp - XpDiff), player.PlayerData.Currencies.ToArray()[1].Amount);
                         });
                     //}
                     //else console.Text = string.Format(Username + " | Level {0:0} - ({1:0} / {2:0}) | Stardust {3:0}", v.Level, (v.Experience - v.PrevLevelXp - XpDiff), (v.NextLevelXp - v.PrevLevelXp - XpDiff), profile.Profile.Currency.ToArray()[1].Amount);
                 }
 
-            await Task.Delay(1000);
-            await ConsoleLevelTitle(Username, client, id);
+            //await Task.Delay(1000);
+            //await ConsoleLevelTitle(Username, client, id);
         }
     }
 }

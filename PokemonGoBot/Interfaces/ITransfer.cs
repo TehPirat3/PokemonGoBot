@@ -1,5 +1,5 @@
-﻿using PokemonGoBot.API;
-using PokemonGoBot.API.GeneratedCode;
+﻿using POGOProtos.Data;
+using PokemonGo.RocketAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;

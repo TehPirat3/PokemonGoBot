@@ -1,4 +1,4 @@
-﻿using PokemonGoBot.API;
+﻿using PokemonGo.RocketAPI;
 using PokemonGoBot.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -25,9 +25,9 @@ namespace PokemonGoBot.Classes
             }*/
             ClientSettings.token.Token.ThrowIfCancellationRequested();
             //ColoredConsoleWrite(ConsoleColor.White, $"Check for duplicates");
-            var inventory = await client.GetInventory();
+            var inventory = await client.Inventory.GetInventory();
             var allpokemons =
-                inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.Pokemon)
+                inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.PokemonData)
                     .Where(p => p != null && p?.PokemonId > 0);
 
             var dupes = allpokemons.OrderBy(x => x.Cp).Select((x, i) => new { index = i, value = x })
@@ -41,7 +41,7 @@ namespace PokemonGoBot.Classes
                     var dubpokemon = dupes.ElementAt(i).ElementAt(j).value;
                     if (dubpokemon.Favorite == 0)
                     {
-                        var transfer = await client.TransferPokemon(dubpokemon.Id);
+                        var transfer = await client.Inventory.TransferPokemon(dubpokemon.Id);
                         string pokemonName = Convert.ToString(dubpokemon.PokemonId);
                         _log.Log_(id, Color.DarkGreen,
                             $"Transferred {pokemonName} with {dubpokemon.Cp} CP (Highest is {dupes.ElementAt(i).Last().value.Cp})");

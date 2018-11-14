@@ -1,6 +1,6 @@
-﻿using AllEnum;
-using PokemonGoBot.API;
-using PokemonGoBot.API.GeneratedCode;
+﻿using POGOProtos.Data;
+using POGOProtos.Enums;
+using PokemonGo.RocketAPI;
 using PokemonGoBot.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -52,9 +52,9 @@ namespace PokemonGoBot.Classes
                 //PokemonId.Dratini
             };
 
-            var inventory = await client.GetInventory();
+            var inventory = await client.Inventory.GetInventory();
             var pokemons = inventory.InventoryDelta.InventoryItems
-                                .Select(i => i.InventoryItemData?.Pokemon)
+                                .Select(i => i.InventoryItemData?.PokemonData)
                                 .Where(p => p != null && p?.PokemonId > 0)
                                 .ToArray();
 

@@ -180,41 +180,41 @@ namespace PokemonGoBot.API
             // Use better balls for high CP pokemon
             if (masterBallsCount > 0 && pokemonCP >= 1000)
             {
-                _log.Log_(id, Color.Green, $"[{DateTime.Now.ToString("HH:mm:ss")}] Master Ball is being used");
+                _log.Log_(id, Color.Green, "Master Ball is being used");
                 return MiscEnums.Item.ITEM_MASTER_BALL;
             }
 
             if (ultraBallsCount > 0 && pokemonCP >= 600)
             {
-                _log.Log_(id, Color.Green, $"[{DateTime.Now.ToString("HH:mm:ss")}] Ultra Ball is being used");
+                _log.Log_(id, Color.Green, "Ultra Ball is being used");
                 return MiscEnums.Item.ITEM_ULTRA_BALL;
             }
 
             if (greatBallsCount > 0 && pokemonCP >= 350)
             {
-                _log.Log_(id, Color.Green, $"[{DateTime.Now.ToString("HH:mm:ss")}] Great Ball is being used");
+                _log.Log_(id, Color.Green, "Great Ball is being used");
                 return MiscEnums.Item.ITEM_GREAT_BALL;
             }
 
             // If low CP pokemon, but no more pokeballs; only use better balls if pokemon are of semi-worthy quality
             if (pokeBallsCount > 0)
             {
-                _log.Log_(id, Color.Green, $"[{DateTime.Now.ToString("HH:mm:ss")}] Poke Ball is being used");
+                _log.Log_(id, Color.Green, "Poke Ball is being used");
                 return MiscEnums.Item.ITEM_POKE_BALL;
             }
             else if ((greatBallsCount < 40 && pokemonCP >= 200) || greatBallsCount >= 40)
                 {
-                _log.Log_(id, Color.Green, $"[{DateTime.Now.ToString("HH:mm:ss")}] Great Ball is being used");
+                _log.Log_(id, Color.Green, "Great Ball is being used");
                 return MiscEnums.Item.ITEM_GREAT_BALL;
             }
             else if (ultraBallsCount > 0 && pokemonCP >= 500)
                 {
-                _log.Log_(id, Color.Green, $"[{DateTime.Now.ToString("HH:mm:ss")}] Ultra Ball is being used");
+                _log.Log_(id, Color.Green, "Ultra Ball is being used");
                 return MiscEnums.Item.ITEM_ULTRA_BALL;
             }
             else if (masterBallsCount > 0 && pokemonCP >= 700)
             {
-                _log.Log_(id, Color.Green, $"[{DateTime.Now.ToString("HH:mm:ss")}] Master Ball is being used");
+                _log.Log_(id, Color.Green, "Master Ball is being used");
                 return MiscEnums.Item.ITEM_MASTER_BALL;
             }
 
@@ -431,7 +431,7 @@ namespace PokemonGoBot.API
             foreach (var item in items)
             {
                 var transfer = await RecycleItem((AllEnum.ItemId)item.Item_, item.Count);
-                _log.Log_(id, Color.DarkCyan, $"[{DateTime.Now.ToString("HH:mm:ss")}] Recycled {item.Count}x {(AllEnum.ItemId)item.Item_}");
+                _log.Log_(id, Color.DarkCyan, $"Recycled {item.Count}x {(AllEnum.ItemId)item.Item_}");
                 await Task.Delay(500);
             }
             await Task.Delay(_settings.RecycleItemsInterval * 1000);

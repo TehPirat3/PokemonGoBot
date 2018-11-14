@@ -1,7 +1,7 @@
-﻿using AllEnum;
-using PokemonGoBot.API;
-using PokemonGoBot.API.Extensions;
-using PokemonGoBot.API.GeneratedCode;
+﻿using POGOProtos.Map.Fort;
+using POGOProtos.Networking.Responses;
+using PokemonGo.RocketAPI;
+using PokemonGo.RocketAPI.Extensions;
 using PokemonGoBot.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -22,15 +22,15 @@ namespace PokemonGoBot.Classes
             var ClientSettings = Main.clientData[id];
             ClientSettings.token.Token.ThrowIfCancellationRequested();
 
-            var mapObjects = await client.GetMapObjects();
+            var mapObjects = await client.Map.GetMapObjects();
 
             var pokeStops = mapObjects.MapCells.SelectMany(i => i.Forts).Where(i => i.Type == FortType.Checkpoint && i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime());
 
             foreach (var pokeStop in pokeStops)
             {
-                var update = await client.UpdatePlayerLocation(pokeStop.Latitude, pokeStop.Longitude);
-                var fortInfo = await client.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
-                var fortSearch = await client.SearchFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
+                var update = await client.Player.UpdatePlayerLocation(pokeStop.Latitude, pokeStop.Longitude, 10);
+                var fortInfo = await client.Fort.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
+                var fortSearch = await client.Fort.SearchFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
 
                 StringWriter PokeStopOutput = new StringWriter();
                 PokeStopOutput.Write($"");
@@ -42,8 +42,8 @@ namespace PokemonGoBot.Classes
                     PokeStopOutput.Write($", Gems: {fortSearch.GemsAwarded}");
                 if (fortSearch.PokemonDataEgg != null)
                     PokeStopOutput.Write($", Eggs: {fortSearch.PokemonDataEgg}");
-                if (GetFriendlyItemsString(fortSearch.ItemsAwarded) != string.Empty)
-                    PokeStopOutput.Write($", Items: {GetFriendlyItemsString(fortSearch.ItemsAwarded)} ");
+                //if (GetFriendlyItemsString(fortSearch.ItemsAwarded) != string.Empty)
+                    PokeStopOutput.Write($", Items: {fortSearch.ItemsAwarded} ");
                 _log.Log_(id, Color.Cyan, PokeStopOutput.ToString());
 
                 //if (fortSearch.ExperienceAwarded != 0)
@@ -53,7 +53,7 @@ namespace PokemonGoBot.Classes
             }
         }
         
-        private static string GetFriendlyItemsString(IEnumerable<FortSearchResponse.Types.ItemAward> items)
+        /*private static string GetFriendlyItemsString(IEnumerable<FortSearchResponse.Types.ItemAward> items)
         {
             var enumerable = items as IList<FortSearchResponse.Types.ItemAward> ?? items.ToList();
 
@@ -64,6 +64,6 @@ namespace PokemonGoBot.Classes
                     .Select(kvp => new { ItemName = kvp.Key.ToString().Substring(4), Amount = kvp.Sum(x => x.ItemCount) })
                     .Select(y => $"{y.Amount}x {y.ItemName}")
                     .Aggregate((a, b) => $"{a}, {b}");
-        }
+        }*/
     }
 }

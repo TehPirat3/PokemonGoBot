@@ -40,8 +40,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Google.Protobuf, Version=3.0.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
-      <HintPath>..\packages\Google.Protobuf.3.0.0-beta3\lib\dotnet\Google.Protobuf.dll</HintPath>
+      <HintPath>..\packages\Google.Protobuf.3.0.0-beta4\lib\net45\Google.Protobuf.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="GPSOAuthSharp">
+      <HintPath>..\..\..\..\..\Downloads\GPSOAuthSharp-master\GPSOAuthSharp\bin\Debug\GPSOAuthSharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling, Version=6.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8\Microsoft.Practices.EnterpriseLibrary.TransientFaultHandling.dll</HintPath>
@@ -53,6 +56,10 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="POGOProtos, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\POGOProtos.1.3.0\lib\net45\POGOProtos.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="S2Geometry, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -88,29 +95,6 @@
     <Compile Include="About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
     </Compile>
-    <Compile Include="API\Client.cs" />
-    <Compile Include="API\Enums\AuthType.cs" />
-    <Compile Include="API\Enums\MiscEnums.cs" />
-    <Compile Include="API\Enums\RequestType.cs" />
-    <Compile Include="API\Exceptions\PTCOfflineException.cs" />
-    <Compile Include="API\Extensions\DateTimeExtensions.cs" />
-    <Compile Include="API\Extensions\HttpClientExtensions.cs" />
-    <Compile Include="API\GeneratedCode\AllEnum.cs" />
-    <Compile Include="API\GeneratedCode\Payloads.cs" />
-    <Compile Include="API\GeneratedCode\Request.cs" />
-    <Compile Include="API\GeneratedCode\Response.cs" />
-    <Compile Include="API\Helpers\HttpClientHelper.cs" />
-    <Compile Include="API\Helpers\JsonHelper.cs" />
-    <Compile Include="API\Helpers\ProtoHelper.cs" />
-    <Compile Include="API\Helpers\RandomHelper.cs" />
-    <Compile Include="API\Helpers\RequestBuilder.cs" />
-    <Compile Include="API\Helpers\RetryHandler.cs" />
-    <Compile Include="API\Helpers\S2Helper.cs" />
-    <Compile Include="API\Helpers\Utils.cs" />
-    <Compile Include="API\ISettings.cs" />
-    <Compile Include="API\Login\GoogleLogin.cs" />
-    <Compile Include="API\Login\PtcLogin.cs" />
-    <Compile Include="API\Resources.cs" />
     <Compile Include="Bag.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -122,6 +106,7 @@
     <Compile Include="Classes\Evolve.cs" />
     <Compile Include="Classes\Experience.cs" />
     <Compile Include="Classes\Farm.cs" />
+    <Compile Include="Classes\GPSOAuthSharp.cs" />
     <Compile Include="Classes\KeepStrongest.cs" />
     <Compile Include="Classes\Log.cs" />
     <Compile Include="Classes\Recycle.cs" />
@@ -129,6 +114,7 @@
     <Compile Include="Classes\Transfer.cs" />
     <Compile Include="Classes\TransferWeak.cs" />
     <Compile Include="Interfaces\ICatch.cs" />
+    <Compile Include="Interfaces\IConfig.cs" />
     <Compile Include="Interfaces\IDuplicate.cs" />
     <Compile Include="Interfaces\IEvolve.cs" />
     <Compile Include="Interfaces\IExperience.cs" />
@@ -201,10 +187,6 @@
     <EmbeddedResource Include="Setup.resx">
       <DependentUpon>Setup.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="API\Proto\AllEnum.proto" />
-    <None Include="API\Proto\Payloads.proto" />
-    <None Include="API\Proto\Request.proto" />
-    <None Include="API\Proto\Response.proto" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -219,9 +201,14 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="Resources\pirate profile.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Source\Repos\Pokemon-Go-Rocket-API\PokemonGo.RocketAPI\PokemonGo.RocketAPI.csproj">
+      <Project>{05d2da44-1b8e-4cf7-94ed-4d52451cd095}</Project>
+      <Name>PokemonGo.RocketAPI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

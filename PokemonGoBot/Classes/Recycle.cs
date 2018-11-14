@@ -2,12 +2,14 @@
 using Google.Protobuf;
 using PokemonGoBot.API;
 using PokemonGoBot.API.Enums;
+using PokemonGoBot.API.Extensions;
 using PokemonGoBot.API.GeneratedCode;
 using PokemonGoBot.API.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +17,7 @@ namespace PokemonGoBot.Classes
 {
     public class Recycle
     {
+        private readonly HttpClient _httpClient;
         private Request.Types.UnknownAuth _unknownAuth;
         public async Task<IEnumerable<Item>> GetItemsToRecycle(ISettings settings, Client client)
         {
@@ -32,27 +35,11 @@ namespace PokemonGoBot.Classes
             foreach (var item in items)
             {
                 var transfer = await RecycleItem((AllEnum.ItemId)item.Item_, item.Count);
-                Main.Logg(id, Color.DarkCyan, $"[{DateTime.Now.ToString("HH:mm:ss")}] Recycled {item.Count}x {(AllEnum.ItemId)item.Item_}");
+                //_log.Log_(id, Color.DarkCyan, $"Recycled {item.Count}x {(AllEnum.ItemId)item.Item_}");
                 await Task.Delay(500);
             }
             await Task.Delay(_settings.RecycleItemsInterval * 1000);
             RecycleItems(client, id);
-        }
-        public async Task<Response.Types.Unknown6> RecycleItem(AllEnum.ItemId itemId, int amount)
-        {
-            var customRequest = new InventoryItemData.RecycleInventoryItem
-            {
-                ItemId = (AllEnum.ItemId)Enum.Parse(typeof(AllEnum.ItemId), itemId.ToString()),
-                Count = amount
-            };
-
-            var releasePokemonRequest = RequestBuilder.GetRequest(_unknownAuth, _currentLat, _currentLng, 30,
-                new Request.Types.Requests()
-                {
-                    Type = (int)RequestType.RECYCLE_INVENTORY_ITEM,
-                    Message = customRequest.ToByteString()
-                });
-            return await _httpClient.PostProtoPayload<Request, Response.Types.Unknown6>($"https://{_apiUrl}/rpc", releasePokemonRequest);
         }
         public async Task<IEnumerable<Item>> GetItems(Client client)
         {
@@ -62,5 +49,4 @@ namespace PokemonGoBot.Classes
                 .Where(p => p != null);
         }
     }
-}
-*/
+}*/

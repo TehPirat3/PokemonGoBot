@@ -19,7 +19,7 @@ namespace PokemonGoBot.API.Login
     {
         private const string OauthTokenEndpoint = "https://www.googleapis.com/oauth2/v4/token";
         private const string OauthEndpoint = "https://accounts.google.com/o/oauth2/device/code";
-        private const string ClientId = "848232511240-73ri3t7plvk96pj4f85uj8otdat2alem.apps.googleusercontent.com";
+        private const string ClientId = "848232511240-7so421jotr2609rmqakceuu1luuq0ptb.apps.googleusercontent.com";
         private const string ClientSecret = "NCjF1TLi2CcY6t5mt0ZveuL7";
         private readonly ILog _log = new Log();
 
@@ -68,13 +68,11 @@ namespace PokemonGoBot.API.Login
                 thread.SetApartmentState(ApartmentState.STA); //Set the thread to STA
                 thread.Start();
                 thread.Join();
-                //Clipboard.SetText(deviceCode.user_code);
             }
-            catch (ArgumentNullException) { _log.Log_(id, Color.Red, "An error occured and and invalid token was generated!"); }
             catch (Exception)
             {
-                _log.Log_(id, Color.Red, $"Couldnt copy to clipboard, do it manually: {deviceCode.user_code}");
-                //_log.Log_(id, Color.Red, $"Goto: http://www.google.com/device & enter {deviceCode.user_code}");
+                _log.Log_(id, Color.Red, "Couldnt copy to clipboard, do it manually");
+                //System.Console.WriteLine($"Goto: http://www.google.com/device & enter {deviceCode.user_code}");
             }
 
             return deviceCode;

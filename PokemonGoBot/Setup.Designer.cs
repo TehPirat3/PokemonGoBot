@@ -180,7 +180,6 @@
             // 
             // user
             // 
-            this.user.Enabled = false;
             this.user.Location = new System.Drawing.Point(64, 43);
             this.user.Name = "user";
             this.user.Size = new System.Drawing.Size(100, 20);
@@ -188,7 +187,6 @@
             // 
             // pass
             // 
-            this.pass.Enabled = false;
             this.pass.Location = new System.Drawing.Point(64, 69);
             this.pass.Name = "pass";
             this.pass.Size = new System.Drawing.Size(100, 20);

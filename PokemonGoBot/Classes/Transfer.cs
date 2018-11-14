@@ -1,5 +1,5 @@
-﻿using PokemonGoBot.API;
-using PokemonGoBot.API.GeneratedCode;
+﻿using POGOProtos.Data;
+using PokemonGo.RocketAPI;
 using PokemonGoBot.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static POGOProtos.Networking.Responses.ReleasePokemonResponse.Types;
 
 namespace PokemonGoBot.Classes
 {
@@ -29,7 +30,7 @@ namespace PokemonGoBot.Classes
 
                 if (pokemon.Favorite == 0)
                 {
-                    var transferPokemonResponse = await client.TransferPokemon(pokemon.Id);
+                    var transferPokemonResponse = await client.Inventory.TransferPokemon(pokemon.Id);
 
                     /*
                     ReleasePokemonOutProto.Status {
@@ -40,13 +41,13 @@ namespace PokemonGoBot.Classes
                         ERROR_POKEMON_IS_EGG = 4;
                     }*/
                     string pokemonName = Convert.ToString(pokemon.PokemonId);
-                    if (transferPokemonResponse.Status == 1)
+                    if (transferPokemonResponse.Result == Result.Success)
                     {
                         _log.Log_(id, Color.Magenta, $"Transferred {pokemonName} with {pokemon.Cp} CP");
                     }
                     else
                     {
-                        var status = transferPokemonResponse.Status;
+                        var status = transferPokemonResponse.Result;
 
                         _log.Log_(id, Color.Red, $"Somehow failed to transfer {pokemonName} with {pokemon.Cp} CP. " +
                                                  $"ReleasePokemonOutProto.Status was {status}");

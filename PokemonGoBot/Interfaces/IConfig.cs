@@ -1,14 +1,12 @@
-#region
-
-using PokemonGoBot.API.Enums;
+﻿using POGOProtos.Inventory.Item;
+using PokemonGo.RocketAPI;
+using PokemonGo.RocketAPI.Enums;
 using System.Collections.Generic;
 using System.Threading;
 
-#endregion
-
-namespace PokemonGoBot.API
+namespace PokemonGoBot.Interfaces
 {
-    public interface ISettings
+    public interface IConfig : ISettings
     {
         AuthType AuthType { get; }
         double DefaultLatitude { get; }
@@ -21,7 +19,7 @@ namespace PokemonGoBot.API
         bool EvolveAllGivenPokemons { get; }
         string TransferType { get; }
         int TransferCPThreshold { get; }
-        ICollection<KeyValuePair<AllEnum.ItemId, int>> ItemRecycleFilter { get; set; }
+        ICollection<KeyValuePair<ItemId, int>> ItemRecycleFilter { get; set; }
         int RecycleItemsInterval { get; }
         string Language { get; }
         CancellationTokenSource token { get; }

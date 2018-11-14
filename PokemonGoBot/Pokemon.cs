@@ -1,5 +1,5 @@
-﻿using PokemonGoBot.API;
-using PokemonGoBot.API.GeneratedCode;
+﻿using POGOProtos.Data;
+using PokemonGo.RocketAPI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,10 +36,10 @@ namespace PokemonGoBot
 
             //try
             //{
-            var inventory = await client.GetInventory();
+            var inventory = await client.Inventory.GetInventory();
             var pokemons =
                 inventory.InventoryDelta.InventoryItems
-                .Select(i => i.InventoryItemData?.Pokemon)
+                .Select(i => i.InventoryItemData?.PokemonData)
                     .Where(p => p != null && p?.PokemonId > 0)
                     .OrderByDescending(key => key.Cp);
             var families = inventory.InventoryDelta.InventoryItems

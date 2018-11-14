@@ -1,4 +1,4 @@
-﻿using PokemonGoBot.API;
+﻿using PokemonGo.RocketAPI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

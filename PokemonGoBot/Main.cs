@@ -1,9 +1,7 @@
-﻿using AllEnum;
-using PokemonGoBot.API;
-using PokemonGoBot.API.Enums;
-using PokemonGoBot.API.Exceptions;
-using PokemonGoBot.API.Extensions;
-using PokemonGoBot.API.GeneratedCode;
+﻿using POGOProtos.Inventory.Item;
+using PokemonGo.RocketAPI;
+using PokemonGo.RocketAPI.Enums;
+using PokemonGo.RocketAPI.Exceptions;
 using PokemonGoBot.Classes;
 using PokemonGoBot.Interfaces;
 using System;
@@ -25,7 +23,7 @@ namespace PokemonGoBot
         public static int errors = 0;
         public static int bots = 0;
         public static int id = 0;
-        public static Dictionary<int, ISettings> clientData = new Dictionary<int, ISettings>();
+        public static Dictionary<int, IConfig> clientData = new Dictionary<int, IConfig>();
         private Stopwatch sw = new Stopwatch();
         //private CancellationTokenSource upToken = new CancellationTokenSource();
         private PerformanceCounter cpu;
@@ -275,33 +273,31 @@ namespace PokemonGoBot
         {
             var ClientSettings = clientData[id];
             ClientSettings.token.Token.ThrowIfCancellationRequested();
-            var client = ClientSettings.client = new Client(ClientSettings, id);
+            var client = ClientSettings.client = new Client(ClientSettings);
             try
             {
                 switch (ClientSettings.AuthType)
                 {
                     case AuthType.Ptc:
                         _log.Log_(id, Color.Green, "Attempting to log into Pokemon Trainers Club..");
-                        await client.DoPtcLogin(ClientSettings.PtcUsername, ClientSettings.PtcPassword);
+                        await client.Login.DoPtcLogin(ClientSettings.PtcUsername, ClientSettings.PtcPassword);
                         break;
                     case AuthType.Google:
                         _log.Log_(id, Color.Green, "Attempting to log into Google..");
                         if (ClientSettings.GoogleRefreshToken == "")
                             _log.Log_(id, Color.Green, "Now opening www.Google.com/device");// and copying the 8 digit code to your clipboard");
 
-                        await client.DoGoogleLogin(ClientSettings, id);
+                        await client.Login.DoGoogleLogin(ClientSettings.PtcUsername, ClientSettings.PtcPassword);
                         break;
                 }
+                //await client.SetServer();
+                await client.Player.UpdatePlayerLocation(ClientSettings.DefaultLatitude, ClientSettings.DefaultLongitude, ClientSettings.DefaultAltitude);
+                var profile = await client.Player?.GetPlayer();
+                //var settings = await client.GetSettings();
+                var mapObjects = await client.Map.GetMapObjects();
+                //var inventory = await client.Inventory.GetInventory();
 
-                await client.SetServer();
-                var profile = await client.GetProfile();
-                var settings = await client.GetSettings();
-                var mapObjects = await client.GetMapObjects();
-                var inventory = await client.GetInventory();
-
-                var pokemons =
-                    inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.Pokemon)
-                        .Where(p => p != null && p?.PokemonId > 0);
+                //var pokemons = inventory.InventoryDelta.InventoryItems.Select(i => i.InventoryItemData?.PokemonData).Where(p => p != null && p?.PokemonId > 0);
 
                 var pkb = (Button)flow.Controls[$"{id}"].Controls[$"pokemon{id}"];
                 pkb.BeginInvoke((MethodInvoker)delegate () { pkb.Enabled = true; });
@@ -310,7 +306,7 @@ namespace PokemonGoBot
                 var jnb = (Button)flow.Controls[$"{id}"].Controls[$"journal{id}"];
                 //jnb.BeginInvoke((MethodInvoker)delegate () { jnb.Enabled = true; });
 
-                _level.ConsoleLevelTitle(profile.Profile.Username, client, id);
+                _level.ConsoleLevelTitle(client, id);
 
                 _log.Log_(id, Color.Yellow, "----------------------------");
                 _log.Log_(id, Color.Cyan, "Account: " + ClientSettings.PtcUsername);
@@ -319,11 +315,11 @@ namespace PokemonGoBot
                 _log.Log_(id, Color.DarkGray, "Longitude: " + ClientSettings.DefaultLongitude);
                 _log.Log_(id, Color.Yellow, "----------------------------");
                 _log.Log_(id, Color.DarkGray, "Your Account:\n");
-                _log.Log_(id, Color.DarkGray, "Name: " + profile.Profile.Username);
-                _log.Log_(id, Color.DarkGray, "Team: " + profile.Profile.Team);
-                _log.Log_(id, Color.DarkGray, "Stardust: " + profile.Profile.Currency.ToArray()[1].Amount);
+                _log.Log_(id, Color.DarkGray, "Name: " + profile.PlayerData.Username);
+                _log.Log_(id, Color.DarkGray, "Team: " + profile.PlayerData.Team);
+                _log.Log_(id, Color.DarkGray, "Stardust: " + profile.PlayerData.Currencies.ToArray()[1].Amount);
 
-                _log.Log_(id, Color.Cyan, "\nFarming Started");
+                _log.Log_(id, Color.Cyan, "Farming Started");
                 _log.Log_(id, Color.Yellow, "----------------------------");
                 switch (ClientSettings.TransferType)
                 {
@@ -331,7 +327,7 @@ namespace PokemonGoBot
                         await _strong.TransferAllButStrongestUnwantedPokemon(client, id);
                         break;
                     case "all":
-                        await _transfer.TransferAllGivenPokemons(id, client, pokemons);
+                        //await _transfer.TransferAllGivenPokemons(id, client, pokemons);
                         break;
                     case "duplicate":
                         await _duplicate.TransferDuplicatePokemon(client, id);
@@ -344,26 +340,28 @@ namespace PokemonGoBot
                         break;
                 }
 
-                if (ClientSettings.EvolveAllGivenPokemons)
-                    await _evolve.EvolveAllGivenPokemons(client, pokemons, id);
+                //if (ClientSettings.EvolveAllGivenPokemons)
+                    //await _evolve.EvolveAllGivenPokemons(client, pokemons, id);
                 //if (ClientSettings.Recycler)
-                  client.RecycleItems(client, id);
+                  //client.RecycleItems(client, id);
 
                 await Task.Delay(5000);
                 _level.PrintLevel(client, id);
                 await _farm.ExecuteFarmingPokestopsAndPokemons(client, id);
                 await _catch.ExecuteCatchAllNearbyPokemons(client, id);
-                _log.Log_(id, Color.Red, $"[{DateTime.Now.ToString("HH:mm:ss")}] No nearby usefull locations found. Please wait 10 seconds.");
+                _log.Log_(id, Color.Red, $"No nearby usefull locations found. Please wait 10 seconds.");
                 await Task.Delay(10000);
                 //CheckVersion();
                 Execute(id);
             }
             catch (TaskCanceledException) { _log.Log_(id, Color.Red, "Task Canceled Exception - Restarting"); Execute(id); errors++; }
+            catch (OperationCanceledException) { }
             catch (UriFormatException) { _log.Log_(id, Color.Red, "System URI Format Exception - Restarting"); Execute(id); errors++; }
-            catch (ArgumentOutOfRangeException) { _log.Log_(id, Color.Red, "ArgumentOutOfRangeException - Restarting"); Execute(id); errors++; }
+            //catch (ArgumentOutOfRangeException) { _log.Log_(id, Color.Red, "ArgumentOutOfRangeException - Restarting"); Execute(id); errors++; }
             catch (ArgumentNullException) { _log.Log_(id, Color.Red, "Argument Null Refference - Restarting"); Execute(id); errors++; }
             catch (NullReferenceException) { _log.Log_(id, Color.Red, "Null Refference - Restarting"); Execute(id); errors++; }
-            catch (Exception ex) { _log.Log_(id, Color.Red, ex.ToString()); Execute(id); errors++; }
+            catch (GoogleException) { _log.Log_(id, Color.Red, "Google Exception - Bad Authentication!"); ClientSettings.token.Cancel(); errors++; return; }
+            //catch (Exception ex) { _log.Log_(id, Color.Red, ex.ToString()); errors++; }
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -373,20 +371,23 @@ namespace PokemonGoBot
         }
     }
 
-    public class Data : ISettings
+    public class Data : IConfig
     {
         public AuthType AuthType { get; set; }
         public string PtcUsername { get; set; }
         public string PtcPassword { get; set; }
+        public string GoogleUsername { get; set; }
+        public string GooglePassword { get; set; }
         public string GoogleRefreshToken { get; set; }
         public double DefaultLatitude { get; set; }
         public double DefaultLongitude { get; set; }
+        public double DefaultAltitude { get; set; }
         public string LevelOutput { get; set; }
         public int LevelTimeInterval { get; set; }
         public string TransferType { get; set; }
         public int TransferCPThreshold { get; set; }
         public bool EvolveAllGivenPokemons { get; set; }
-        ICollection<KeyValuePair<ItemId, int>> ISettings.ItemRecycleFilter
+        ICollection<KeyValuePair<ItemId, int>> IConfig.ItemRecycleFilter
         {
             get
             {
@@ -415,7 +416,7 @@ namespace PokemonGoBot
 
         public CancellationTokenSource token { get; set; }
         //public Thread thread { get; set; }
-        public int GroupBox { get; set; }
+        //public int GroupBox { get; set; }
         public int CurrentLevel { get; set; }
         public string AccessToken { get; set; }
         public Client client { get; set; }
